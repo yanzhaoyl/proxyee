@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<configuration>
+
+    <!-- ch.qos.logback.core.ConsoleAppender 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 对日志进行格式化 -->
+        <encoder charset="UTF-8">
+            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 日志级别 -->
+    <root>
+        <level value="info" />
+        <appender-ref ref="console" />
+    </root>
+
+    <!-- 精确设置每个包下面的日志   [ additivity="false" ] 不会将日志流反馈到 root 中 -->
+    <logger name="com.github.monkeywie.proxyee" additivity="false">
+        <level value="trace" />
+        <appender-ref ref="console" />
+    </logger>
+
+</configuration>

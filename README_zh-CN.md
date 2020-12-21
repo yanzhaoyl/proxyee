@@ -1,14 +1,14 @@
 <div align="center">
   <h1>Proxyee</h1>
   <p>
-  
-  [![maven](https://img.shields.io/maven-central/v/com.github.monkeywie/proxyee.svg)](https://search.maven.org/search?q=com.github.monkeywie)
-  [![license](https://img.shields.io/github/license/monkeywie/proxyee.svg)](https://opensource.org/licenses/MIT)
+
+[![maven](https://img.shields.io/maven-central/v/com.github.monkeywie/proxyee.svg)](https://search.maven.org/search?q=com.github.monkeywie)
+[![license](https://img.shields.io/github/license/monkeywie/proxyee.svg)](https://opensource.org/licenses/MIT)
 
   </p>
   <p>
 
-  [English](/README.md) | [中文](/README_zh-CN.md)
+[English](/README.md) | [中文](/README_zh-CN.md)
 
   </p>
 </div>
@@ -22,6 +22,7 @@ Proxyee 是一个 JAVA 编写的 HTTP 代理服务器类库，支持 HTTP、HTTP
 ## 使用
 
 ```xml
+
 <dependency>
     <groupId>com.github.monkeywie</groupId>
     <artifactId>proxyee</artifactId>
@@ -34,7 +35,7 @@ Proxyee 是一个 JAVA 编写的 HTTP 代理服务器类库，支持 HTTP、HTTP
 - 普通 HTTP 代理服务器
 
 ```java
-new HttpProxyServer().start(9999);
+ new HttpProxyServer().start(9999);
 ```
 
 - 中间人 HTTP 代理服务器
@@ -46,37 +47,37 @@ new HttpProxyServer().start(9999);
 代码实现：
 
 ```java
-HttpProxyServerConfig config =  new HttpProxyServerConfig();
+HttpProxyServerConfig config=new HttpProxyServerConfig();
 //开启HTTPS支持
 //不开启的话HTTPS不会被拦截，而是直接转发原始报文
-config.setHandleSsl(true);
-new HttpProxyServer()
-    .serverConfig(config)
-    .proxyInterceptInitializer(new HttpProxyInterceptInitializer() {
-      @Override
-      public void init(HttpProxyInterceptPipeline pipeline) {
-        pipeline.addLast(new FullResponseIntercept() {
+        config.setHandleSsl(true);
+        new HttpProxyServer()
+        .serverConfig(config)
+        .proxyInterceptInitializer(new HttpProxyInterceptInitializer(){
+@Override
+public void init(HttpProxyInterceptPipeline pipeline){
+        pipeline.addLast(new FullResponseIntercept(){
 
-          @Override
-          public boolean match(HttpRequest httpRequest, HttpResponse httpResponse, HttpProxyInterceptPipeline pipeline) {
-            //在匹配到百度首页时插入js
-            return HttpUtil.checkUrl(pipeline.getHttpRequest(), "^www.baidu.com$")
-                && isHtml(httpRequest, httpResponse);
-          }
+@Override
+public boolean match(HttpRequest httpRequest,HttpResponse httpResponse,HttpProxyInterceptPipeline pipeline){
+        //在匹配到百度首页时插入js
+        return HttpUtil.checkUrl(pipeline.getHttpRequest(),"^www.baidu.com$")
+        &&isHtml(httpRequest,httpResponse);
+        }
 
-          @Override
-          public void handelResponse(HttpRequest httpRequest, FullHttpResponse httpResponse, HttpProxyInterceptPipeline pipeline) {
-            //打印原始响应信息
-            System.out.println(httpResponse.toString());
-            System.out.println(httpResponse.content().toString(Charset.defaultCharset()));
-            //修改响应头和响应体
-            httpResponse.headers().set("handel", "edit head");
-            httpResponse.content().writeBytes("<script>alert('hello proxyee')</script>".getBytes());
-          }
+@Override
+public void handelResponse(HttpRequest httpRequest,FullHttpResponse httpResponse,HttpProxyInterceptPipeline pipeline){
+        //打印原始响应信息
+        System.out.println(httpResponse.toString());
+        System.out.println(httpResponse.content().toString(Charset.defaultCharset()));
+        //修改响应头和响应体
+        httpResponse.headers().set("handel","edit head");
+        httpResponse.content().writeBytes("<script>alert('hello proxyee')</script>".getBytes());
+        }
         });
-      }
-    })
-    .start(9999);
+        }
+        })
+        .start(9999);
 ```
 
 > 注：当开启了 https 支持时，需要安装 CA 证书(`src/resources/ca.crt`)至受信任的根证书颁发机构。
@@ -85,17 +86,16 @@ new HttpProxyServer()
 
 ## HTTPS 支持
 
-需要导入项目中的CA证书(src/resources/ca.crt)至受信任的根证书颁发机构。
-可以使用CertDownIntercept拦截器，开启网页下载证书功能，访问http://serverIP:serverPort即可进入。
+需要导入项目中的CA证书(src/resources/ca.crt)至受信任的根证书颁发机构。 可以使用CertDownIntercept拦截器，开启网页下载证书功能，访问http://serverIP:serverPort即可进入。
 
 > 注1：安卓手机上安装证书若弹出键入凭据存储的密码，输入锁屏密码即可。
-> 
+>
 > 注2：Android 7以及以上，系统不再信任用户安装的证书，你需要root后，使用
-> cat ca.crt > $(openssl x509 -inform PEM -subject_hash_old -in ca.crt  | head -1).0
+> cat ca.crt > $(openssl x509 -inform PEM -subject_hash_old -in ca.crt | head -1).0
 > 命令生成 d1488b25.0 文件，然后把文件移动到
 > /system/etc/security/cacerts/
 > 并给与644权限
-> 
+>
 > 注3：在Android 7以及以上，即使你把证书添加进系统证书里，这个证书在chrome里也是不工作的。原因是chrome从2018年开始只信任有效期少于27个月的证书(https://www.entrustdatacard.com/blog/2018/february/chrome-requires-ct-after-april-2018)。所以你需要自行生成证书文件。
 
 ### 使用自定义根证书
@@ -122,13 +122,12 @@ openssl req -sha256 -new -x509 -days 365 -key ca.key -out ca.crt \
 
 ## 前置代理支持
 
-
 可设置前置代理,支持 http,socks4,socks5 协议
 
 ```java
 new HttpProxyServer()
-    .proxyConfig(new ProxyConfig(ProxyType.SOCKS5, "127.0.0.1", 1085))  //使用socks5二级代理
-    .start(9999);
+        .proxyConfig(new ProxyConfig(ProxyType.SOCKS5,"127.0.0.1",1085))  //使用socks5二级代理
+        .start(9999);
 ```
 
 ## 通讯流程
@@ -149,3 +148,145 @@ HTTP 通讯
 ## 感谢
 
 [![intellij-idea](idea.svg)](https://www.jetbrains.com/?from=proxyee)
+
+## 内容追加
+
+### pom.xml 中增加 日志的依赖
+```xml
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.16</version>
+</dependency>
+<dependency>
+<groupId>ch.qos.logback</groupId>
+<artifactId>logback-classic</artifactId>
+<version>1.2.3</version>
+</dependency>
+```
+
+### 增加 日志配置文件 logback.xml
+```xml
+<?xml version="1.0"?>
+<configuration>
+
+    <!-- ch.qos.logback.core.ConsoleAppender 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 对日志进行格式化 -->
+        <encoder charset="UTF-8">
+            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 日志级别 -->
+    <root>
+        <level value="info"/>
+        <appender-ref ref="console"/>
+    </root>
+
+    <!-- 精确设置每个包下面的日志   [ additivity="false" ] 不会将日志流反馈到root中 -->
+    <logger name="com.github.monkeywie.proxyee" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+</configuration>
+```
+
+### 解决 pom 中 插件报错 maven-assembly-plugin 版本号 报错
+```xml
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <version>2.5.5</version>
+```
+> 删除了  版本号  
+
+### pom 中 增加 阿里 maven中央仓库
+```xml
+    <repositories>
+        <repository>
+            <id>maven-ali</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public//</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+```
+
+## 内容追加
+
+### pom.xml 中增加 日志的依赖
+```xml
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.16</version>
+</dependency>
+<dependency>
+<groupId>ch.qos.logback</groupId>
+<artifactId>logback-classic</artifactId>
+<version>1.2.3</version>
+</dependency>
+```
+
+### 增加 日志配置文件 logback.xml
+```xml
+<?xml version="1.0"?>
+<configuration>
+
+    <!-- ch.qos.logback.core.ConsoleAppender 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 对日志进行格式化 -->
+        <encoder charset="UTF-8">
+            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 日志级别 -->
+    <root>
+        <level value="info"/>
+        <appender-ref ref="console"/>
+    </root>
+
+    <!-- 精确设置每个包下面的日志   [ additivity="false" ] 不会将日志流反馈到root中 -->
+    <logger name="com.github.monkeywie.proxyee" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+</configuration>
+```
+
+### 解决 pom 中 插件报错 maven-assembly-plugin 版本号 报错
+```xml
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <version>2.5.5</version>
+```
+> 删除了  版本号  
+
+### pom 中 增加 阿里 maven中央仓库
+```xml
+    <repositories>
+        <repository>
+            <id>maven-ali</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public//</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+```

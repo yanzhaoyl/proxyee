@@ -59,7 +59,8 @@ public class CertDownIntercept extends HttpProxyIntercept {
         if (requestProto.getHost().equals(inetSocketAddress.getHostString()) &&
                 requestProto.getPort() == inetSocketAddress.getPort()) {
             crtFlag = true;
-            if (httpRequest.uri().matches("^.*/ca.crt.*$")) {  //下载证书
+            // 下载证书
+            if (httpRequest.uri().matches("^.*/ca.crt.*$")) {
                 HttpResponse httpResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK);
 
@@ -78,10 +79,11 @@ public class CertDownIntercept extends HttpProxyIntercept {
                 clientChannel.close();
             } else if (httpRequest.uri().matches("^.*/favicon.ico$")) {
                 clientChannel.close();
-            } else {  //跳转下载页面
+            } else {
+                //跳转下载页面
                 HttpResponse httpResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK);
-                String html = "<html><body><div style=\"margin-top:100px;text-align:center;\"><a href=\"ca.crt\">ProxyeeRoot ca.crt</a></div></body></html>";
+                String html = "<html><body><div style=\"margin-top:100px;text-align:center;\">证书下载 : <a href=\"ca.crt\">代理 https 根证书 ca.crt</a></div></body></html>";
                 httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=utf-8");
                 httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, html.getBytes().length);
                 httpResponse.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);

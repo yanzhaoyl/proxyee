@@ -22,10 +22,13 @@ public class InterceptFullHttpProxyServer {
                 .proxyInterceptInitializer(new HttpProxyInterceptInitializer() {
                     @Override
                     public void init(HttpProxyInterceptPipeline pipeline) {
+                        //处理证书下载
                         pipeline.addLast(new CertDownIntercept());
-
                         pipeline.addLast(new FullRequestIntercept() {
 
+                            /**
+                             * 匹配到的请求会解码成FullRequest
+                             */
                             @Override
                             public boolean match(HttpRequest httpRequest, HttpProxyInterceptPipeline pipeline) {
                                 //如果是json报文

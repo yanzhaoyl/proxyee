@@ -23,6 +23,9 @@ public abstract class FullRequestIntercept extends HttpProxyIntercept {
     }
 
 
+    /**
+     * 拦截代理服务器到目标服务器的请求体
+     */
     @Override
     public final void beforeRequest(Channel clientChannel, HttpRequest httpRequest, HttpProxyInterceptPipeline pipeline) throws Exception {
         if (httpRequest instanceof FullHttpRequest) {
@@ -47,6 +50,9 @@ public abstract class FullRequestIntercept extends HttpProxyIntercept {
         pipeline.beforeRequest(clientChannel, httpRequest);
     }
 
+    /**
+     * 拦截代理服务器到客户端的响应头
+     */
     @Override
     public void afterResponse(Channel clientChannel, Channel proxyChannel, HttpResponse httpResponse, HttpProxyInterceptPipeline pipeline) throws Exception {
         //如果是FullHttpRequest

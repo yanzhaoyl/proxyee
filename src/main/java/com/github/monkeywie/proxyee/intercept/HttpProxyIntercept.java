@@ -4,8 +4,14 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class HttpProxyIntercept {
+
+    public HttpProxyIntercept(){
+        log.debug("HttpProxyIntercept [ 代理拦截类 ] 被创建");
+    }
 
     /**
      * 拦截代理服务器到目标服务器的请求头

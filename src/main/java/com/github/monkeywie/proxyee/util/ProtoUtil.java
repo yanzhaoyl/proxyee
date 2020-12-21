@@ -8,8 +8,14 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ *
+ */
 public class ProtoUtil {
 
+    /**
+     * 获取 请求 IP 端口 以及 是否为 https
+     */
     public static RequestProto getRequestProto(HttpRequest httpRequest) {
         RequestProto requestProto = new RequestProto();
         int port = -1;
@@ -54,6 +60,9 @@ public class ProtoUtil {
         return requestProto;
     }
 
+    /**
+     * IP三元组 [ 目标IP 目标端口 目标协议 ]
+     */
     public static class RequestProto implements Serializable {
 
         private static final long serialVersionUID = -6471051659605127698L;
@@ -96,8 +105,12 @@ public class ProtoUtil {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             RequestProto that = (RequestProto) o;
             return port == that.port &&
                     ssl == that.ssl &&

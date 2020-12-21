@@ -8,10 +8,7 @@ import com.github.monkeywie.proxyee.intercept.HttpProxyInterceptInitializer;
 import com.github.monkeywie.proxyee.intercept.HttpTunnelIntercept;
 import com.github.monkeywie.proxyee.proxy.ProxyConfig;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -20,11 +17,13 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
+@Slf4j
 public class HttpProxyServer {
 
     //http代理隧道握手成功
@@ -32,9 +31,18 @@ public class HttpProxyServer {
             "Connection established");
 
     private HttpProxyCACertFactory caCertFactory;
+    /**
+     * 代理 服务 配置类
+     */
     private HttpProxyServerConfig serverConfig;
+    /**
+     * 代理 拦截 初始化类
+     */
     private HttpProxyInterceptInitializer proxyInterceptInitializer;
     private HttpTunnelIntercept tunnelIntercept;
+    /**
+     * 代理 异常 处理类
+     */
     private HttpProxyExceptionHandle httpProxyExceptionHandle;
     private ProxyConfig proxyConfig;
 
@@ -42,12 +50,14 @@ public class HttpProxyServer {
     private EventLoopGroup workerGroup;
 
     private void init() {
+        log.debug("进入 HttpProxyServer 的 init() 方法");
         if (serverConfig == null) {
             serverConfig = new HttpProxyServerConfig();
         }
         serverConfig.setProxyLoopGroup(new NioEventLoopGroup(serverConfig.getProxyGroupThreads()));
 
         if (serverConfig.isHandleSsl()) {
+            log.debug("是 https 请求 ");
             try {
                 serverConfig.setClientSslCtx(
                         SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
@@ -76,13 +86,17 @@ public class HttpProxyServer {
             } catch (Exception e) {
                 serverConfig.setHandleSsl(false);
             }
+        }else{
+            log.debug("不是 https 请求 ");
         }
+
         if (proxyInterceptInitializer == null) {
             proxyInterceptInitializer = new HttpProxyInterceptInitializer();
         }
         if (httpProxyExceptionHandle == null) {
             httpProxyExceptionHandle = new HttpProxyExceptionHandle();
         }
+        log.debug("退出 HttpProxyServer 的 init() 方法");
     }
 
     public HttpProxyServer serverConfig(HttpProxyServerConfig serverConfig) {
@@ -144,8 +158,18 @@ public class HttpProxyServer {
             ChannelFuture f;
             if (ip == null) {
                 f = b.bind(port).sync();
+                f.addListener((ChannelFutureListener) channelFuture -> {
+                    if (channelFuture.isSuccess()) {
+                        log.info("服务启动成功,端口: {} ", port);
+                    }
+                });
             } else {
                 f = b.bind(ip, port).sync();
+                f.addListener((ChannelFutureListener) channelFuture -> {
+                    if (channelFuture.isSuccess()) {
+                        log.info("服务启动成功,ip: {} ,端口: {} ", ip, port);
+                    }
+                });
             }
             f.channel().closeFuture().sync();
         } catch (Exception e) {

@@ -22,7 +22,8 @@ public class InterceptHttpProxyServer {
                 .proxyInterceptInitializer(new HttpProxyInterceptInitializer() {
                     @Override
                     public void init(HttpProxyInterceptPipeline pipeline) {
-                        pipeline.addLast(new CertDownIntercept());  //处理证书下载
+                        //处理证书下载
+                        pipeline.addLast(new CertDownIntercept());
                         pipeline.addLast(new HttpProxyIntercept() {
                             @Override
                             public void beforeRequest(Channel clientChannel, HttpRequest httpRequest,

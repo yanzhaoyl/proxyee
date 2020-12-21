@@ -5,11 +5,12 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
+@Slf4j
 public class HttpProxyInterceptPipeline implements Iterable<HttpProxyIntercept> {
 
     private List<HttpProxyIntercept> intercepts;
@@ -41,6 +42,7 @@ public class HttpProxyInterceptPipeline implements Iterable<HttpProxyIntercept> 
     }
 
     public HttpProxyInterceptPipeline(HttpProxyIntercept defaultIntercept) {
+        log.debug("HttpProxyInterceptPipeline [ 拦截管道类 ] 被创建");
         this.intercepts = new LinkedList<>();
         this.defaultIntercept = defaultIntercept;
         this.intercepts.add(defaultIntercept);
